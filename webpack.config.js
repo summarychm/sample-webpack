@@ -33,6 +33,12 @@ let config = {
 						},
 					},
 					{
+						loader: "babel-loader",
+						options: {
+							presets: ["@babel/preset-env"],
+						},
+					},
+					{
 						loader: "hello-loader",
 					},
 				],
