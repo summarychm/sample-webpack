@@ -1,0 +1,26 @@
+{
+	"name": "sample-webpack",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"build": "webpack"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/summarychm/sample-webpack.git"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/summarychm/sample-webpack/issues"
+	},
+	"homepage": "https://github.com/summarychm/sample-webpack#readme",
+	"devDependencies": {
+		"@types/webpack": "^4.41.0",
+		"webpack": "^4.41.2",
+		"webpack-cli": "^3.3.10"
+	}
+}
