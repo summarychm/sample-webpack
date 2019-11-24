@@ -6,6 +6,7 @@ let validateOptions = require("schema-utils"); // 参数校验
 let schema = {
 	type: "object",
 	properties: { name: { type: "string", description: "资源名称" } },
+	// additionalProperties: false,
 };
 
 /**

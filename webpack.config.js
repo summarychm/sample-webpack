@@ -48,8 +48,9 @@ let config = {
 				test: /.(png|jpg|jpeg|svg)$/,
 				use: [
 					{
-						loader: "file-loader",
+						loader: "url-loader",
 						options: {
+							limit: 1000,
 							name: "[contenthash:4].[ext]",
 						},
 					},
