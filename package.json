@@ -19,7 +19,10 @@
 	},
 	"homepage": "https://github.com/summarychm/sample-webpack#readme",
 	"devDependencies": {
+		"@types/source-map": "^0.5.7",
 		"@types/webpack": "^4.41.0",
+		"html-webpack-plugin": "^3.2.0",
+		"source-map": "^0.7.3",
 		"webpack": "^4.41.2",
 		"webpack-cli": "^3.3.10"
 	}
