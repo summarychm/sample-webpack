@@ -1,5 +1,6 @@
 import img from "../public/image/img.jpg";
 import logo from "../public/image/logo.svg";
+import "../public/style.less";
 
 let num1 = 50;
 const num2 = 100;
