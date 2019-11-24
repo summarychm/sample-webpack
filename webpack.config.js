@@ -21,7 +21,7 @@ let config = {
 	module: {
 		rules: [
 			{
-				test: /.(js|jsx)$/,
+				test: /.jsx?$/,
 				use: [
 					{
 						loader: "banner-loader",
@@ -43,6 +43,17 @@ let config = {
 					},
 				],
 				exclude: /node_modules/,
+			},
+			{
+				test: /.(png|jpg|jpeg|svg)$/,
+				use: [
+					{
+						loader: "file-loader",
+						options: {
+							name: "[contenthash:4].[ext]",
+						},
+					},
+				],
 			},
 		],
 	},
