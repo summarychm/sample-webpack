@@ -3,6 +3,8 @@ const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+const FileListPlugin = require("./plugins/FileList-Plugin");
+
 /** @type {webpack.Configuration} */
 let config = {
 	mode: "development",
@@ -67,6 +69,7 @@ let config = {
 		new HtmlWebpackPlugin({
 			title: "demo",
 		}),
+		new FileListPlugin({ filename: "filelist.md", unit: "kb" }),
 	],
 };
 

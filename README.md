@@ -15,4 +15,5 @@
   - [x] css-loader
   - [x] style-loader
 - [ ] 2.实现常见 plugin
+  - [ ] FileListPlugin,支持 filename,unit(单位,kb/mb),precision(精度) 三个参数
 - [ ] 3.实现基础 webpack 功能

@@ -1,0 +1,12 @@
+[
+	{
+		"path": "$ROOTPATH$/node_modules/webpack/lib/Compiler.js",
+		"bookmarks": [
+			{
+				"line": 45,
+				"column": 26,
+				"label": ""
+			}
+		]
+	}
+]
