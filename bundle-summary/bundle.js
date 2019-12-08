@@ -1,71 +1,31 @@
 (function(modules) {
-	// webpackBootstrap
-	// install a JSONP callback for chunk loading
-	function webpackJsonpCallback(data) {
-		var chunkIds = data[0];
-		var moreModules = data[1];
+	var installedModules = {}; // modules cache
 
-		// add "moreModules" to the modules object,
-		// then flag all "chunkIds" as loaded and fire callback
-		var moduleId,
-			chunkId,
-			i = 0,
-			resolves = [];
-		for (; i < chunkIds.length; i++) {
-			chunkId = chunkIds[i];
-			if (Object.prototype.hasOwnProperty.call(installedChunks, chunkId) && installedChunks[chunkId]) {
-				resolves.push(installedChunks[chunkId][0]);
-			}
-			installedChunks[chunkId] = 0;
-		}
-		for (moduleId in moreModules) {
-			if (Object.prototype.hasOwnProperty.call(moreModules, moduleId)) {
-				modules[moduleId] = moreModules[moduleId];
-			}
-		}
-		if (parentJsonpFunction) parentJsonpFunction(data);
+	// 存放chunks加载状态
+	// undefined = 未加载, null = preloaded/prefetched
+	// Promise = 加载中, 0 = 已加载
+	var installedChunks = { main: 0 };
 
-		while (resolves.length) {
-			resolves.shift()();
-		}
-	}
-
-	// The module cache
-	var installedModules = {};
-
-	// object to store loaded and loading chunks
-	// undefined = chunk not loaded, null = chunk preloaded/prefetched
-	// Promise = chunk loading, 0 = chunk loaded
-	var installedChunks = {
-		main: 0,
-	};
-
-	// script path function
-	function jsonpScriptSrc(chunkId) {
-		return __webpack_require__.p + "" + chunkId + ".bundle.js";
-	}
-
-	// The require function
+	/** webpack模拟实现的require语句
+	 * @param {string} moduleId
+	 */
 	function __webpack_require__(moduleId) {
 		// Check if module is in cache
-		if (installedModules[moduleId]) {
-			return installedModules[moduleId].exports;
-		}
-		// Create a new module (and put it into the cache)
-		var module = (installedModules[moduleId] = {
+		if (installedModules[moduleId]) return installedModules[moduleId].exports;
+
+		// 创建新module并存入cache
+		var module = {
 			i: moduleId,
-			l: false,
-			exports: {},
-		});
+			l: false, // 是否加载完毕
+			exports: {}, // 模块默认输出
+		};
+		installedModules[moduleId] = module;
 
 		// Execute the module function
 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+		module.l = true; // Flag the module as loaded
 
-		// Flag the module as loaded
-		module.l = true;
-
-		// Return the exports of the module
-		return module.exports;
+		return module.exports; // 返回模块的默认输出
 	}
 
 	// This file contains only the entry chunk.
@@ -203,6 +163,42 @@
 		throw err;
 	};
 
+	// webpackBootstrap
+	// install a JSONP callback for chunk loading
+	function webpackJsonpCallback(data) {
+		var chunkIds = data[0];
+		var moreModules = data[1];
+
+		// add "moreModules" to the modules object,
+		// then flag all "chunkIds" as loaded and fire callback
+		var moduleId,
+			chunkId,
+			i = 0,
+			resolves = [];
+		for (; i < chunkIds.length; i++) {
+			chunkId = chunkIds[i];
+			if (Object.prototype.hasOwnProperty.call(installedChunks, chunkId) && installedChunks[chunkId]) {
+				resolves.push(installedChunks[chunkId][0]);
+			}
+			installedChunks[chunkId] = 0;
+		}
+		for (moduleId in moreModules) {
+			if (Object.prototype.hasOwnProperty.call(moreModules, moduleId)) {
+				modules[moduleId] = moreModules[moduleId];
+			}
+		}
+		if (parentJsonpFunction) parentJsonpFunction(data);
+
+		while (resolves.length) {
+			resolves.shift()();
+		}
+	}
+
+	// script path function
+	function jsonpScriptSrc(chunkId) {
+		return __webpack_require__.p + "" + chunkId + ".bundle.js";
+	}
+
 	var jsonpArray = (window["webpackJsonp"] = window["webpackJsonp"] || []);
 	var oldJsonpFunction = jsonpArray.push.bind(jsonpArray);
 	jsonpArray.push = webpackJsonpCallback;
@@ -212,35 +208,32 @@
 
 	// Load entry module and return exports
 	return __webpack_require__((__webpack_require__.s = "./src/index.js"));
-})(
-	/************************************************************************/
-	{
-		"./src/index.js": function(module, __webpack_exports__, __webpack_require__) {
-			"use strict";
-			__webpack_require__.r(__webpack_exports__);
-			/* harmony import */ var _moduleB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./moduleB */ "./src/moduleB.js");
+})({
+	"./src/index.js": function(module, __webpack_exports__, __webpack_require__) {
+		"use strict";
+		__webpack_require__.r(__webpack_exports__);
+		/* harmony import */ var _moduleB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./moduleB */ "./src/moduleB.js");
 
-			console.log("moduleB", _moduleB__WEBPACK_IMPORTED_MODULE_0__["default"]);
-			var button = document.createElement("button");
-			button.innerHTML = "点我btn";
+		console.log("moduleB", _moduleB__WEBPACK_IMPORTED_MODULE_0__["default"]);
+		var button = document.createElement("button");
+		button.innerHTML = "点我btn";
 
-			button.onclick = function() {
-				// 魔法注释 /*webpackChunkName: 'title'*/
-				__webpack_require__
-					.e(/*! import() */ 0)
-					.then(__webpack_require__.bind(null, /*! ./moduleA */ "./src/moduleA.js"))
-					.then(function(result) {
-						console.log(result, result["default"]);
-					});
-			};
+		button.onclick = function() {
+			// 魔法注释 /*webpackChunkName: 'title'*/
+			__webpack_require__
+				.e(/*! import() */ 0)
+				.then(__webpack_require__.bind(null, /*! ./moduleA */ "./src/moduleA.js"))
+				.then(function(result) {
+					console.log(result, result["default"]);
+				});
+		};
 
-			document.body.appendChild(button);
-		},
-
-		"./src/moduleB.js": function(module, __webpack_exports__, __webpack_require__) {
-			"use strict";
-			__webpack_require__.r(__webpack_exports__);
-			/* harmony default export */ __webpack_exports__["default"] = "moduleB";
-		},
+		document.body.appendChild(button);
 	},
-);
+
+	"./src/moduleB.js": function(module, __webpack_exports__, __webpack_require__) {
+		"use strict";
+		__webpack_require__.r(__webpack_exports__);
+		/* harmony default export */ __webpack_exports__["default"] = "moduleB";
+	},
+});
