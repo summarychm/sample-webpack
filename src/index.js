@@ -1,20 +1,12 @@
-import img from "../public/image/img.jpg";
-import logo from "../public/image/logo.svg";
-import "../public/style.less";
+import moduleB from "./moduleB";
 
-let num1 = 50;
-const num2 = 100;
-
-let sum = (p1, p2) => {
-	console.log(p1 + p2);
+console.log("moduleB", moduleB);
+let button = document.createElement("button");
+button.innerHTML = "点我btn";
+button.onclick = function() {
+	// 魔法注释 /*webpackChunkName: 'title'*/
+	import("./moduleA").then(function(result) {
+		console.log(result, result.default);
+	});
 };
-console.log("num1", num1, "num2", num2);
-console.log("sum", sum(num1, num2));
-
-let imgImg = document.createElement("img");
-imgImg.src = img;
-document.body.appendChild(imgImg);
-let logoImg = document.createElement("img");
-logoImg.style = "width:100px;height:100px;";
-logoImg.src = logo;
-document.body.appendChild(logoImg);
+document.body.appendChild(button);
