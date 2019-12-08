@@ -23,10 +23,94 @@
 
 		// Execute the module function
 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-		module.l = true; // Flag the module as loaded
+		module.l = true; // 标示为已加载
 
 		return module.exports; // 返回模块的默认输出
 	}
+
+	// expose the modules object (__webpack_modules__)
+	__webpack_require__.m = modules;
+	// expose the module cache
+	__webpack_require__.c = installedModules;
+	// output.publicPath __webpack_public_path__
+	__webpack_require__.p = "";
+
+	/** 判断模块是否存在指定属性(hasOwnProperty)
+	 * @param {object} object 模块
+	 * @param {string} property 属性
+	 */
+	__webpack_require__.o = function(object, property) {
+		return Object.prototype.hasOwnProperty.call(object, property);
+	};
+
+	/** 为exports指定属性添加getter描述符
+	 * @param {object} exports exports
+	 * @param {string} name 属性名
+	 * @param {function} getter getterFunction
+	 */
+	__webpack_require__.d = function(exports, name, getter) {
+		if (!__webpack_require__.o(exports, name)) {
+			Object.defineProperty(exports, name, { enumerable: true, get: getter });
+		}
+	};
+
+	/** 将模块标识为es6模块
+	 * @param {object} exports 模块
+	 * 指定 Symbol.toStringTag 和 "__esModule"
+	 */
+	__webpack_require__.r = function(exports) {
+		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+		Object.defineProperty(exports, "__esModule", { value: true });
+	};
+
+	/** 获取模块默认导出,并通过自身的"a"属性快速获取模块默认导出.
+	 * @param {*} module
+	 */
+	__webpack_require__.n = function(module) {
+		var getter =
+			module && module.__esModule
+				? function getDefault() {
+						return module["default"];
+				  }
+				: function getModuleExports() {
+						return module;
+				  };
+		// 为getter变量定义"a"属性,这样转义后的code就可以直接通过default.a直接获取模块默认导出内容.
+		__webpack_require__.d(getter, "a", getter);
+		return getter;
+	};
+
+	/** 异步加载的错误函数
+	 * @param {any} err
+	 */
+	__webpack_require__.oe = function(err) {
+		console.error(err);
+		throw err;
+	};
+
+	// create a fake namespace object
+	// mode & 1: value is a module id, require it
+	// mode & 2: merge all properties of value into the ns
+	// mode & 4: return value when already ns object
+	// mode & 8|1: behave like require
+	__webpack_require__.t = function(value, mode) {
+		if (mode & 1) value = __webpack_require__(value);
+		if (mode & 8) return value;
+		if (mode & 4 && typeof value === "object" && value && value.__esModule) return value;
+		var ns = Object.create(null);
+		__webpack_require__.r(ns);
+		Object.defineProperty(ns, "default", { enumerable: true, value: value });
+		if (mode & 2 && typeof value != "string")
+			for (var key in value)
+				__webpack_require__.d(
+					ns,
+					key,
+					function(key) {
+						return value[key];
+					}.bind(null, key),
+				);
+		return ns;
+	};
 
 	// This file contains only the entry chunk.
 	// The chunk loading function for additional chunks
@@ -34,7 +118,6 @@
 		var promises = [];
 
 		// JSONP chunk loading for javascript
-
 		var installedChunkData = installedChunks[chunkId];
 		if (installedChunkData !== 0) {
 			// 0 means "already installed".
@@ -90,79 +173,6 @@
 		return Promise.all(promises);
 	};
 
-	// expose the modules object (__webpack_modules__)
-	__webpack_require__.m = modules;
-
-	// expose the module cache
-	__webpack_require__.c = installedModules;
-
-	// define getter function for harmony exports
-	__webpack_require__.d = function(exports, name, getter) {
-		if (!__webpack_require__.o(exports, name)) {
-			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-		}
-	};
-
-	// define __esModule on exports
-	__webpack_require__.r = function(exports) {
-		if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
-			Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-		}
-		Object.defineProperty(exports, "__esModule", { value: true });
-	};
-
-	// create a fake namespace object
-	// mode & 1: value is a module id, require it
-	// mode & 2: merge all properties of value into the ns
-	// mode & 4: return value when already ns object
-	// mode & 8|1: behave like require
-	__webpack_require__.t = function(value, mode) {
-		if (mode & 1) value = __webpack_require__(value);
-		if (mode & 8) return value;
-		if (mode & 4 && typeof value === "object" && value && value.__esModule) return value;
-		var ns = Object.create(null);
-		__webpack_require__.r(ns);
-		Object.defineProperty(ns, "default", { enumerable: true, value: value });
-		if (mode & 2 && typeof value != "string")
-			for (var key in value)
-				__webpack_require__.d(
-					ns,
-					key,
-					function(key) {
-						return value[key];
-					}.bind(null, key),
-				);
-		return ns;
-	};
-
-	// getDefaultExport function for compatibility with non-harmony modules
-	__webpack_require__.n = function(module) {
-		var getter =
-			module && module.__esModule
-				? function getDefault() {
-						return module["default"];
-				  }
-				: function getModuleExports() {
-						return module;
-				  };
-		__webpack_require__.d(getter, "a", getter);
-		return getter;
-	};
-
-	// Object.prototype.hasOwnProperty.call
-	__webpack_require__.o = function(object, property) {
-		return Object.prototype.hasOwnProperty.call(object, property);
-	};
-
-	// __webpack_public_path__
-	__webpack_require__.p = "";
-
-	// on error function for async loading
-	__webpack_require__.oe = function(err) {
-		console.error(err);
-		throw err;
-	};
-
 	// webpackBootstrap
 	// install a JSONP callback for chunk loading
 	function webpackJsonpCallback(data) {
@@ -206,13 +216,13 @@
 	for (var i = 0; i < jsonpArray.length; i++) webpackJsonpCallback(jsonpArray[i]);
 	var parentJsonpFunction = oldJsonpFunction;
 
-	// Load entry module and return exports
+	// 加载entryModule并返回默认导出
 	return __webpack_require__((__webpack_require__.s = "./src/index.js"));
 })({
 	"./src/index.js": function(module, __webpack_exports__, __webpack_require__) {
 		"use strict";
 		__webpack_require__.r(__webpack_exports__);
-		/* harmony import */ var _moduleB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./moduleB */ "./src/moduleB.js");
+		var _moduleB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./moduleB */ "./src/moduleB.js");
 
 		console.log("moduleB", _moduleB__WEBPACK_IMPORTED_MODULE_0__["default"]);
 		var button = document.createElement("button");
@@ -222,10 +232,8 @@
 			// 魔法注释 /*webpackChunkName: 'title'*/
 			__webpack_require__
 				.e(/*! import() */ 0)
-				.then(__webpack_require__.bind(null, /*! ./moduleA */ "./src/moduleA.js"))
-				.then(function(result) {
-					console.log(result, result["default"]);
-				});
+				.then(__webpack_require__.bind(null, "./src/moduleA.js"))
+				.then(console.log);
 		};
 
 		document.body.appendChild(button);
@@ -234,6 +242,6 @@
 	"./src/moduleB.js": function(module, __webpack_exports__, __webpack_require__) {
 		"use strict";
 		__webpack_require__.r(__webpack_exports__);
-		/* harmony default export */ __webpack_exports__["default"] = "moduleB";
+		__webpack_exports__["default"] = "moduleB";
 	},
 });
