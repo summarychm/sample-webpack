@@ -1,3 +1,3 @@
 // import moduleB from "./moduleB";
 
-export default "moduleA";
+module.exports = "moduleA";

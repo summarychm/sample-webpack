@@ -63,7 +63,7 @@
 		Object.defineProperty(exports, "__esModule", { value: true });
 	};
 
-	/** 获取模块默认导出,并通过自身的"a"属性快速获取模块默认导出.
+	/** 获取模块默认导出,并通过"a"属性来兼容esModule引入commonJS的情况.
 	 * @param {*} module
 	 */
 	__webpack_require__.n = function(module) {
@@ -75,7 +75,7 @@
 				: function getModuleExports() {
 						return module;
 				  };
-		// 为getter变量定义"a"属性,这样转义后的code就可以直接通过default.a直接获取模块默认导出内容.
+		// 为getter变量定义"a"属性,这样转义后的code就可以通过default.a直接获取commonJS的默认导出.
 		__webpack_require__.d(getter, "a", getter);
 		return getter;
 	};
@@ -221,10 +221,12 @@
 })({
 	"./src/index.js": function(module, __webpack_exports__, __webpack_require__) {
 		"use strict";
-		__webpack_require__.r(__webpack_exports__);
-		var _moduleB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./moduleB */ "./src/moduleB.js");
+		__webpack_require__.r(__webpack_exports__); // 将模块标识为es6模块
+		// harmony import ,es6引入commonJS模块的情况
+		var _moduleB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__("./src/moduleB.js");
+		var _moduleB__WEBPACK_IMPORTED_MODULE_0___default = __webpack_require__.n(_moduleB__WEBPACK_IMPORTED_MODULE_0__);
 
-		console.log("moduleB", _moduleB__WEBPACK_IMPORTED_MODULE_0__["default"]);
+		console.log("moduleB", _moduleB__WEBPACK_IMPORTED_MODULE_0___default.a);
 		var button = document.createElement("button");
 		button.innerHTML = "点我btn";
 
@@ -232,16 +234,18 @@
 			// 魔法注释 /*webpackChunkName: 'title'*/
 			__webpack_require__
 				.e(/*! import() */ 0)
-				.then(__webpack_require__.bind(null, "./src/moduleA.js"))
-				.then(console.log);
+				.then(__webpack_require__.t.bind(null, "./src/moduleA.js", 7))
+				.then(function(result) {
+					console.log(result, result["default"]);
+				});
 		};
 
 		document.body.appendChild(button);
 	},
 
-	"./src/moduleB.js": function(module, __webpack_exports__, __webpack_require__) {
-		"use strict";
-		__webpack_require__.r(__webpack_exports__);
-		__webpack_exports__["default"] = "moduleB";
+	"./src/moduleB.js": function(module, exports) {
+		module.exports = "moduleB";
 	},
+
+	/******/
 });
