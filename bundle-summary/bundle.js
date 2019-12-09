@@ -1,10 +1,9 @@
 (function(modules) {
-	var installedModules = {}; // modules cache
-
-	// 存放chunks加载状态
+	/** chunks加载状态 */
 	// undefined = 未加载, null = preloaded/prefetched
 	// Promise = 加载中, 0 = 已加载
 	var installedChunks = { main: 0 };
+	var installedModules = {}; // modules cache
 
 	/** webpack模拟实现的require语句
 	 * @param {string} moduleId
@@ -28,12 +27,12 @@
 		return module.exports; // 返回模块的默认输出
 	}
 
-	// expose the modules object (__webpack_modules__)
-	__webpack_require__.m = modules;
-	// expose the module cache
-	__webpack_require__.c = installedModules;
-	// output.publicPath,用于加载被分割出去的异步代码
-	__webpack_require__.p = "";
+	__webpack_require__.m = modules; // 将所有的modules挂载到m
+	__webpack_require__.c = installedModules; // 将所有已加载modules挂载到c
+	__webpack_require__.p = ""; // output.publicPath,用于加载被分割出去的异步代码
+
+	// FIXME 自己注册到全局,方便查看
+	window.__webpack_require__ = __webpack_require__;
 
 	/** 判断模块是否存在指定属性(hasOwnProperty)
 	 * @param {object} object 模块
@@ -89,16 +88,10 @@
 		throw err;
 	};
 
-	// create a fake namespace object
-	// 将commonJS模块转为esModule模块
-	// mode & 1: value is a module id, require it
-	// mode & 2: merge all properties of value into the ns
-	// mode & 4: return value when already ns object
-	// mode & 8|1: behave like require
-
-	/** 创建一个命名空间对象,将commonJS模块转为esModule模块(转为esModule利用二进制+位运算实现)
+	/** 创建一个命名空间对象,将commonJS模块转为esModule模块(二进制+位运算)
 	 * @param {*} value
-	 * @param {*} mode "0bxxx1" 模块加载方式(来源linux的权限位概念) 1,2,4,8->2的0-3次方
+	 * @param {*} mode "0bxxx1" 模块加载方式(来源linux的权限位概念)
+	 * 2的0-3次方 1,2,4,8->1,10,100,1000
 	 * mode & 1: value是模块ID,加载该模块并赋值给value
 	 * mode & 8|1: 直接返回module.exports的内容
 	 * mode & 2: 将value的所有的属性合并到新ns属性上
@@ -108,6 +101,8 @@
 		if (mode & 1) value = __webpack_require__(value);
 		if (mode & 8) return value;
 		if (mode & 4 && typeof value === "object" && value && value.__esModule) return value;
+
+		// 将commonJS模块转为esModule模块
 		var ns = Object.create(null);
 		__webpack_require__.r(ns);
 		Object.defineProperty(ns, "default", { enumerable: true, value: value });
@@ -123,26 +118,24 @@
 		return ns;
 	};
 
-	// This file contains only the entry chunk.
-	// The chunk loading function for additional chunks
-	// 异步加载chunk
+	/**  异步加载chunk
+	 * @param {number|string} chunkId chunkId或moduleId
+	 */
 	__webpack_require__.e = function requireEnsure(chunkId) {
-		var promises = [];
-
+		var promises = []; // 用于加载chunks,这个promises无用,直接返回promise实例即可.
 		// chunkId对应的加载状态数组 [resolve, reject,promise]
 		var installedChunkData = installedChunks[chunkId];
 		// 如果模块还未加载完毕
 		if (installedChunkData !== 0) {
-			// 如果是一个Promise的话表示正在加载(data为真即为promise),
-			// 继续使用该promise等待加载结果
+			// 如果data非空&不等于0则表示是一个Promise,那就继续使用该promise等待加载结果
 			if (installedChunkData) promises.push(installedChunkData[2]);
 			else {
 				// 创建一个获取chunk的Promise
 				var promise = new Promise(function(resolve, reject) {
-					// 将resove,reject,promise实例,缓存到installedChunks[chunkId]中
+					// 将resove,reject缓存到installedChunks[chunkId]中
 					installedChunkData = installedChunks[chunkId] = [resolve, reject];
 				});
-				installedChunkData[2] = promise;
+				installedChunkData[2] = promise; // 将promise实例缓存到installedChunks[chunkId]中
 				promises.push(promise);
 
 				// 开始加载代码块
@@ -150,7 +143,7 @@
 				script.charset = "utf-8";
 				script.timeout = 120;
 				script.src = jsonpScriptSrc(chunkId); // 设置源文件路径
-				// CSP: HTMLElement 接口的 nonce 属性返回只使用一次的加密数字，被内容安全政策用来决定这次请求是否被允许处理。
+				// CSP: nonce返回一个只使用一次的加密数字,被内容安全政策用来决定这次请求是否被允许处理。
 				if (__webpack_require__.nc) script.setAttribute("nonce", __webpack_require__.nc);
 
 				var error = new Error(); // 在栈展开之前创建错误以获取有用的堆栈信息
@@ -178,55 +171,56 @@
 				document.head.appendChild(script); // 正式开始JSONP
 			}
 		}
-		return Promise.all(promises); // 并行加载所有chunk
+		return Promise.all(promises); // 并行加载chunk,其实可以直接返回promsie实例
 	};
+	// 计算JSON加载的路径
+	function jsonpScriptSrc(chunkId) {
+		return __webpack_require__.p + "" + chunkId + ".bundle.js";
+	}
 
-	// 重写的push方法,用于window["webpackJsonp"].push调用
+	/** 重写的push方法,用于window["webpackJsonp"].push调用
+	 * @param {[chunkId,chunkData]} data chunk信息
+	 * chunkId的内容可能为number(installedModuleId)或string(moduleId)
+	 */
 	function webpackJsonpCallback(data) {
 		var hasOwnProperty = Object.prototype.hasOwnProperty;
 		var chunkIds = data[0]; // 代码块ID
-		var moreModules = data[1]; // chunkModules,如果chunk依赖多个模块此处会为多个modules
+		var moreModules = data[1]; // chunkModuleData,如果chunk依赖多个模块此处会为多个modules
 
-		// add "moreModules" to the modules object,
-		// then flag all "chunkIds" as loaded and fire callback
-		//向模块对象上增加更多的模块，然后把所有的chunkIds设置为已经加载并触发回调
 		var moduleId,
 			chunkId,
 			i = 0,
 			resolves = [];
+		// 更新installedChunks中当前chunk的状态
 		for (; i < chunkIds.length; i++) {
 			chunkId = chunkIds[i];
+			// 当前chunk还处于加载中状态的话,则将其resolve方法存入resolves集合中
 			if (hasOwnProperty.call(installedChunks, chunkId) && installedChunks[chunkId]) {
 				var chunkResolve = installedChunks[chunkId][0];
-				resolves.push(chunkResolve); // 将该chunk的resolve方法存入resolves
+				resolves.push(chunkResolve);
 			}
 			installedChunks[chunkId] = 0; // chunk加载完成
 		}
-		// 把新获取的模块合并到主modules对象上
+
+		// 将chunkData更新到modules对象上
 		for (moduleId in moreModules) {
-			if (hasOwnProperty.call(moreModules, moduleId)) {
-				modules[moduleId] = moreModules[moduleId];
-			}
+			if (hasOwnProperty.call(moreModules, moduleId)) modules[moduleId] = moreModules[moduleId];
 		}
-		// 如果有父JSONP函数就调用
+		// TODO 进阶功能 如果有父JSONP函数就调用
 		if (parentJsonpFunction) parentJsonpFunction(data);
 
+		// 遍历resolves集合将promise全部转为成功态.
 		while (resolves.length) {
 			var resolveFn = resolves.shift();
-			resolveFn(); // 让resolves集合中的resolve都执行
+			resolveFn();
 		}
-	}
-
-	// 计算JSON加载的路径
-	function jsonpScriptSrc(chunkId) {
-		return __webpack_require__.p + "" + chunkId + ".bundle.js";
 	}
 
 	var jsonpArray = (window["webpackJsonp"] = window["webpackJsonp"] || []);
 	var oldJsonpFunction = jsonpArray.push.bind(jsonpArray); // 缓存jsonpArray原始push方法
 	jsonpArray.push = webpackJsonpCallback; // AOP,将push指向webpackJsonpCallback,
 
-	// 进阶
+	// TODO 进阶功能
 	jsonpArray = jsonpArray.slice();
 	for (var i = 0; i < jsonpArray.length; i++) webpackJsonpCallback(jsonpArray[i]);
 	var parentJsonpFunction = oldJsonpFunction;
