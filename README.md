@@ -14,6 +14,8 @@
   - [x] less-loader
   - [x] css-loader
   - [x] style-loader
+  - [ ] sprite-laoder 雪碧图功能,支持自定义后缀,与 file-loader 等冲突
 - [x] 2.实现常见 plugin
   - [x] FileListPlugin,支持 filename,unit(单位,kb/mb),precision(精度) 三个参数
 - [ ] 3.实现基础 webpack 功能
+- [x] 4.完善 bundle.js 文件的分析与注释.

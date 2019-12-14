@@ -1,4 +1,5 @@
-.vscode/
+/.vscode
+.vscode/bookmarks.json
 
 # Logs
 logs
@@ -62,4 +63,5 @@ typings/
 # next.js build output
 .next
 dist
+
 

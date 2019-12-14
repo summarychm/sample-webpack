@@ -1,4 +1,5 @@
 //@ts-check
+// 官方版 https://github.com/webpack-contrib/file-loader/blob/master/src/index.js
 const webpack = require("webpack");
 const { getOptions, interpolateName } = require("loader-utils");
 let validateOptions = require("schema-utils"); // 参数校验
