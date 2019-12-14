@@ -1,15 +1,13 @@
 (function(modules) {
-	/** chunks加载状态 */
-	// undefined = 未加载, null = preloaded/prefetched
-	// Promise = 加载中, 0 = 已加载
-	var installedChunks = { main: 0 };
+	/** chunks加载状态4种 */
+	// undefined = 未加载, null = preloaded/prefetched, Promise = 加载中, 0 = 已加载
+	var installedChunks = { main: 0 }; // 默认主模块main已加载
 	var installedModules = {}; // modules cache
 
 	/** webpack模拟实现的require语句
 	 * @param {string} moduleId
 	 */
 	function __webpack_require__(moduleId) {
-		// Check if module is in cache
 		if (installedModules[moduleId]) return installedModules[moduleId].exports;
 
 		// 创建新module并存入cache
@@ -88,7 +86,7 @@
 		throw err;
 	};
 
-	/** 创建一个命名空间对象,将commonJS模块转为esModule模块(二进制+位运算)
+	/** 加载模块,并将commonJS模块转为esModule(二进制+位运算)
 	 * @param {*} value
 	 * @param {*} mode "0bxxx1" 模块加载方式(来源linux的权限位概念)
 	 * 2的0-3次方 1,2,4,8->1,10,100,1000
@@ -118,14 +116,14 @@
 		return ns;
 	};
 
-	/**  异步加载chunk
+	/** 异步加载chunks
 	 * @param {number|string} chunkId chunkId或moduleId
 	 */
 	__webpack_require__.e = function requireEnsure(chunkId) {
 		var promises = []; // 用于加载chunks,这个promises无用,直接返回promise实例即可.
 		// chunkId对应的加载状态数组 [resolve, reject,promise]
 		var installedChunkData = installedChunks[chunkId];
-		// 如果模块还未加载完毕
+		// 如果该chunk还未加载完毕
 		if (installedChunkData !== 0) {
 			// 如果data非空&不等于0则表示是一个Promise,那就继续使用该promise等待加载结果
 			if (installedChunkData) promises.push(installedChunkData[2]);
@@ -146,8 +144,11 @@
 				// CSP: nonce返回一个只使用一次的加密数字,被内容安全政策用来决定这次请求是否被允许处理。
 				if (__webpack_require__.nc) script.setAttribute("nonce", __webpack_require__.nc);
 
-				var error = new Error(); // 在栈展开之前创建错误以获取有用的堆栈信息
-				var onScriptComplete = function(event) {
+				script.onerror = script.onload = onScriptComplete;
+				document.head.appendChild(script); // 正式开始JSONP
+
+				// scriptLoad错误处理
+				function onScriptComplete(event) {
 					script.onerror = script.onload = null; // 避免内存泄漏,IE
 					clearTimeout(timeout);
 					var chunk = installedChunks[chunkId];
@@ -155,6 +156,7 @@
 						if (chunk) {
 							var errorType = event && (event.type === "load" ? "missing" : event.type);
 							var realSrc = event && event.target && event.target.src;
+							var error = new Error(); // 在栈展开之前创建错误以获取有用的堆栈信息
 							error.message = "Loading chunk " + chunkId + " failed.\n(" + errorType + ": " + realSrc + ")";
 							error.name = "ChunkLoadError";
 							error.type = errorType;
@@ -163,12 +165,10 @@
 						}
 						installedChunks[chunkId] = undefined;
 					}
-				};
+				}
 				var timeout = setTimeout(function() {
 					onScriptComplete({ type: "timeout", target: script });
 				}, 120000); // 超时处理
-				script.onerror = script.onload = onScriptComplete;
-				document.head.appendChild(script); // 正式开始JSONP
 			}
 		}
 		return Promise.all(promises); // 并行加载chunk,其实可以直接返回promsie实例
@@ -178,20 +178,20 @@
 		return __webpack_require__.p + "" + chunkId + ".bundle.js";
 	}
 
-	/** 重写的push方法,用于window["webpackJsonp"].push调用
-	 * @param {[chunkId,chunkData]} data chunk信息
+	/** 重写的push方法,供window["webpackJsonp"].push调用
+	 * @param {ary[]} data chunk信息,[chunkId,chunkData]
 	 * chunkId的内容可能为number(installedModuleId)或string(moduleId)
 	 */
 	function webpackJsonpCallback(data) {
 		var hasOwnProperty = Object.prototype.hasOwnProperty;
-		var chunkIds = data[0]; // 代码块ID
-		var moreModules = data[1]; // chunkModuleData,如果chunk依赖多个模块此处会为多个modules
+		var chunkIds = data[0];
+		var moreModules = data[1]; // chunkModules,如果chunk依赖多个模块此处会为多个modules
 
 		var moduleId,
 			chunkId,
 			i = 0,
 			resolves = [];
-		// 更新installedChunks中当前chunk的状态
+		// 循环,更新installedChunks中当前chunk的状态
 		for (; i < chunkIds.length; i++) {
 			chunkId = chunkIds[i];
 			// 当前chunk还处于加载中状态的话,则将其resolve方法存入resolves集合中
@@ -199,31 +199,29 @@
 				var chunkResolve = installedChunks[chunkId][0];
 				resolves.push(chunkResolve);
 			}
-			installedChunks[chunkId] = 0; // chunk加载完成
+			installedChunks[chunkId] = 0; // !chunk加载完成
 		}
 
-		// 将chunkData更新到modules对象上
+		// !将chunkData更新到modules对象上
 		for (moduleId in moreModules) {
 			if (hasOwnProperty.call(moreModules, moduleId)) modules[moduleId] = moreModules[moduleId];
 		}
-		// TODO 进阶功能 如果有父JSONP函数就调用
+		// 将data存入到window["webpackJsonp"],用于别的module再请求该chunk时,直接返回结果而不再请求
 		if (parentJsonpFunction) parentJsonpFunction(data);
 
 		// 遍历resolves集合将promise全部转为成功态.
-		while (resolves.length) {
-			var resolveFn = resolves.shift();
-			resolveFn();
-		}
+		resolves.forEach((resolve) => resolve());
 	}
 
 	var jsonpArray = (window["webpackJsonp"] = window["webpackJsonp"] || []);
 	var oldJsonpFunction = jsonpArray.push.bind(jsonpArray); // 缓存jsonpArray原始push方法
 	jsonpArray.push = webpackJsonpCallback; // AOP,将push指向webpackJsonpCallback,
+	var parentJsonpFunction = oldJsonpFunction;
 
-	// TODO 进阶功能
+	// 将window["webpackJsonp"]中的chunkData更新到modules中.
+	// 兼容多次引入bundle.js导致重复请求chunk.js的问题
 	jsonpArray = jsonpArray.slice();
 	for (var i = 0; i < jsonpArray.length; i++) webpackJsonpCallback(jsonpArray[i]);
-	var parentJsonpFunction = oldJsonpFunction;
 
 	// 加载entryModule并返回默认导出
 	return __webpack_require__((__webpack_require__.s = "./src/index.js"));
@@ -252,10 +250,7 @@
 
 		document.body.appendChild(button);
 	},
-
 	"./src/moduleB.js": function(module, exports) {
 		module.exports = "moduleB";
 	},
-
-	/******/
 });
