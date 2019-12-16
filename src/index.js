@@ -1,5 +1,6 @@
 import list from "../public/list.txt";
 const user = require("./userContainer");
+require("../public/style.less");
 
 const $root = document.getElementById("root");
 

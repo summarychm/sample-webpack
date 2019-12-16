@@ -11,15 +11,11 @@ function styleLoader(source, sourceMap, meta) {}
 
 // 使用pitch流程,优先由自己处理, pitch -> normal
 styleLoader.pitch = function(remainingRequest) {
-	/** @type {webpack.loader.LoaderContext} */
-	// @ts-ignore
+	/** @type {any} */
 	const self = this;
-
-	// 1.将剩余的loader地址转为相对根路径地址(因为最终运行在浏览器所以要转为moduleId)
-	// 2.路径头部加入"!!",让webpack只使用这些inline-loader来处理module.供loader-runner使用
+	// 1.将剩余的loaderRequest转为相对地址(因为最终运行在浏览器所以要转为moduleId)
+	// 2.路径头部加入"!!",让webpack只使用inline-loader来处理module.供loader-runner使用
 	let relativePath = loaderUtils.stringifyRequest(self, `!!${remainingRequest}`);
-	// 3.让remainingRequest涉及的inline-loader来处理source.
-	// 4.将最终结果作为模块导出
 	let styleStr = `
     let style=document.createElement('style');
     style.innerHTML=require(${relativePath});

@@ -32,9 +32,8 @@ function getFileContents(filePath) {
 /**
  * @param {string | Buffer} [source]
  * @param {any} [map]
- * @param {any} [meta]
  */
-function banderLoader(source, map, meta) {
+function banderLoader(source, map) {
 	/** @type {webpack.loader.LoaderContext} */
 	const self = this;
 	const options = getOptions(self) || {};
@@ -71,7 +70,7 @@ function banderLoader(source, map, meta) {
 			});
 			map = result.map.toJSON();
 			callback(null, result.code, map);
-		} else callback(null, prefix + content + postStr);
+		} else callback(null, prefix + content + postStr, map);
 	}
 }
 module.exports = banderLoader;

@@ -9,13 +9,13 @@ const FileListPlugin = require("./plugins/FileList-Plugin");
 let config = {
 	mode: "development",
 	entry: "./src/index.js",
-	devtool: false,
+	// devtool: false,
 	output: {
 		filename: "bundle.js",
 		path: path.resolve(__dirname, "dist"),
 	},
 	resolveLoader: {
-		modules: ["node_modules", "loaders"], // loader查找顺序
+		modules: ["loaders", "node_modules"], // loader查找顺序
 	},
 	resolve: {
 		extensions: [".js", ".jsx"], // 支持的扩展名
