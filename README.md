@@ -16,6 +16,7 @@
   - [x] css-loader
   - [x] style-loader
   - [ ] sprite-laoder 雪碧图功能,支持自定义后缀,与 file-loader 等冲突
+  - [x] raw-loader,支持 esModule 参数
 
 - [x] 2.实现常见 plugin
 

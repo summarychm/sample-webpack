@@ -1,11 +1,18 @@
-import moduleB from "./moduleB";
+import list from "../public/list.txt";
+const user = require("./userContainer");
 
-console.log("moduleB", moduleB);
+const $root = document.getElementById("root");
+
+var $list = document.createElement("p");
+$list.innerText = list;
+$root.appendChild($list);
+
+console.log(user.name);
+
 let button = document.createElement("button");
-button.innerHTML = "点我btn";
+button.innerHTML = "dynamicImport";
 button.onclick = function() {
-	// 魔法注释 /*webpackChunkName: 'title'*/
-	import("./moduleA").then(function(result) {
+	import(/* webpackChunkName: 'title'*/ "./projectContainer").then((result) => {
 		console.log(result, result.default);
 	});
 };

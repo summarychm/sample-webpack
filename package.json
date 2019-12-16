@@ -8,7 +8,7 @@
 		"build": "webpack",
 		"serve": "cd ./bundle-summary && http-server -c-1",
 		"simple": "webpack --config webpack.config.simple.js",
-		"dev": "webpack-dev-server"
+		"dev": "webpack-dev-server --config webpack.config.simple.js"
 	},
 	"repository": {
 		"type": "git",

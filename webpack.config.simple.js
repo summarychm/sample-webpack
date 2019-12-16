@@ -9,6 +9,7 @@ const FileListPlugin = require("./plugins/FileList-Plugin");
 let config = {
 	mode: "development",
 	entry: "./src/index.js",
+	devtool: false,
 	output: {
 		filename: "bundle.js",
 		path: path.resolve(__dirname, "dist"),
@@ -40,11 +41,17 @@ let config = {
 							presets: ["@babel/preset-env"],
 						},
 					},
-					{
-						loader: "hello-loader",
-					},
 				],
 				exclude: /node_modules/,
+			},
+			{
+				test: /.txt$/,
+				use: {
+					loader: "raw-loader",
+					options: {
+						esModule: false, // 使用commonJS2规范
+					},
+				},
 			},
 			{
 				test: /.(png|jpg|jpeg|svg)$/,
@@ -67,7 +74,8 @@ let config = {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			title: "demo",
+			title: "example",
+			template: path.resolve(__dirname, "public", "template.html"),
 		}),
 		new FileListPlugin({ filename: "filelist.md", unit: "kb" }),
 	],
