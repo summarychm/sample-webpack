@@ -1,5 +1,4 @@
 //@ts-check
-const webpack = require("webpack");
 const loaderUtils = require("loader-utils");
 
 /** 动态创建style标签,将source加载到页面中

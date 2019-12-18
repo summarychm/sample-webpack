@@ -19,7 +19,7 @@ function babelLoader(source, sourceMap, meta) {
 
 	babel.transform(source, { ...defaultOptions, ...options }, (err, result) => {
 		const { code, map, ast } = result;
-		debugger;
+		// debugger;
 		callback(err, code, map, ast);
 	});
 }
