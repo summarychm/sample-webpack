@@ -1,39 +1,40 @@
-//@ts-check
-const webpack = require("webpack");
+var postcss = require("postcss");
+var loaderUtils = require("loader-utils");
+var Tokenizer = require("css-selector-tokenizer");
 
-/** 处理css中url引入方式由绝对地址改为require方式.
- * @param {string} [source]
- * @param {any} [sourceMap]
- * @param {any} [meta]
- */
-function cssLoader(source, sourceMap, meta) {
-	/** @type {webpack.loader.LoaderContext} */
-	const self = this;
-	if (self.cacheable) self.cacheable();
-	const callback = self.async();
+const cssLoader = function(source) {
+	const cssPlugin = (postOptions) => {
+		return (root) => {
+			// 处理import依赖
+			root.walkAtRules(/^import$/i, (rule) => {
+				rule.remove(); // 删除该import节点,转为添加依赖的方式进行加载
+				postOptions.imports.push(rule.params.slice(1, -1));
+			});
+			// 处理url路径
+			root.walkDecls((decl) => {
+				var values = Tokenizer.parseValues(decl.value);
+				values.nodes.forEach((value) => {
+					value.nodes.forEach((item) => {
+						if (item.type === "url") {
+							item.url = "'+require(" + loaderUtils.stringifyRequest(this, item.url) + ")+'";
+						}
+					});
+				});
+				decl.value = Tokenizer.stringifyValues(values);
+			});
+		};
+	};
 
-	const reg = /url\((.+?)\)/g; // 非贪婪模式
-	let pos = 0; //匹配游标起始点
+	let callback = this.async();
+	let postOptions = { imports: [] };
+	let pipeline = postcss([cssPlugin(postOptions)]);
+	pipeline.process(source).then((result) => {
+		// 将import的css模块交由cssLoader继续处理
+		postOptions.imports.map((url) => "'+require(" + loaderUtils.stringifyRequest(this, "!!css-loader!" + url) + ")+'");
+		let importCss = postOptions.imports.join("\r\n");
+		let data = "module.exports=`" + importCss + "\r\n" + result.css + "` ";
+		callback(null, data);
+	});
+};
 
-	let result = ["let list=[];"]; // 存储匹配到的资源集合
-	let current = null; // 正则匹配结果
-	while ((current = reg.exec(source))) {
-		const [matchUrl, g] = current;
-		pos = reg.lastIndex; // 更新游标位置
-		//获取资源在source的起始位置
-		let last = pos - matchUrl.length;
-		// 获取资源前缀内容str
-		let preStr = source.slice(pos, last);
-		// 将前缀内容缓存到list中
-		result.push(`list.push(${JSON.stringify(preStr)});`);
-		// 将资源引入方式改为require的形式,稍后由file-loader引入
-		result.push(`list.push('url('+require(${g})+')');`);
-	}
-	// 将poststr内容缓存到list中
-	result.push(`list.push(${JSON.stringify(source.slice(pos))})`);
-	// 将list转为字符串
-	result.push(`module.exports=list.join("");`);
-
-	callback(null, result.join("\r\n"));
-}
 module.exports = cssLoader;
