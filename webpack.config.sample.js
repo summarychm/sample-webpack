@@ -9,7 +9,7 @@ const FileListPlugin = require("./plugins/FileList-Plugin");
 let config = {
 	mode: "development",
 	entry: "./src/index.js",
-	// devtool: false,
+	devtool: false,
 	output: {
 		filename: "bundle.js",
 		path: path.resolve(__dirname, "dist"),
@@ -20,21 +20,20 @@ let config = {
 	resolve: {
 		extensions: [".js", ".jsx"], // 支持的扩展名
 	},
-	stats: "verbose", // 尽量多的显示log
 	module: {
 		rules: [
 			{
 				test: /.jsx?$/,
 				use: [
-					{
-						loader: "banner-loader",
-						options: {
-							preStr: "/* perStr注释 */",
-							postStr: "/* postStr注释 */",
-							prefix: path.resolve("./public/banner/perfix.txt"),
-							postfix: path.resolve("./public/banner/postfix.txt"),
-						},
-					},
+					// {
+					// 	loader: "banner-loader",
+					// 	options: {
+					// 		preStr: "/* perStr注释 */",
+					// 		postStr: "/* postStr注释 */",
+					// 		prefix: path.resolve("./public/banner/perfix.txt"),
+					// 		postfix: path.resolve("./public/banner/postfix.txt"),
+					// 	},
+					// },
 					{
 						loader: "babel-loader",
 						options: {
@@ -52,6 +51,7 @@ let config = {
 						esModule: false, // 使用commonJS2规范
 					},
 				},
+				exclude: /node_modules/,
 			},
 			{
 				test: /.(png|jpg|jpeg|svg)$/,
@@ -64,6 +64,7 @@ let config = {
 						},
 					},
 				],
+				exclude: /node_modules/,
 			},
 			{
 				test: /.less$/,
@@ -77,7 +78,7 @@ let config = {
 			title: "example",
 			template: path.resolve(__dirname, "public", "template.html"),
 		}),
-		new FileListPlugin({ filename: "filelist.md", unit: "kb" }),
+		new FileListPlugin({ filename: "FileList.md", unit: "kb" }),
 	],
 };
 

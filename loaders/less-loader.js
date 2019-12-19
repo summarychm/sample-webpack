@@ -13,9 +13,9 @@ function lessLoader(source, sourceMap, meta) {
 	if (self.cacheable) self.cacheable();
 
 	const callback = self.async();
-	less.render(source, (err, data) => {
-		if (err) callback(new Error(err.toString()));
-		else callback(null, data.css);
+	less.render(source, { filename: self.resource }, (err, data) => {
+		// @ts-ignore
+		callback(err, data.css, sourceMap, meta);
 	});
 }
 module.exports = lessLoader;
