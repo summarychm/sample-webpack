@@ -1,15 +1,13 @@
-//@ts-check
 const path = require("path");
-const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const FileListPlugin = require("./plugins/FileList-Plugin");
 
-/** @type {webpack.Configuration} */
+/** @type {import("webpack").Configuration} */
 let config = {
 	mode: "development",
 	entry: "./src/index.js",
-	devtool: false,
+	devtool: "source-map",
 	output: {
 		filename: "bundle.js",
 		path: path.resolve(__dirname, "dist"),

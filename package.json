@@ -7,7 +7,7 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"build": "webpack",
 		"serve": "cd ./bundle-summary && http-server -c-1",
-		"simple": "webpack --config webpack.config.sample.js",
+		"sample": "webpack --config webpack.config.sample.js",
 		"dev": "webpack-dev-server --config webpack.config.sample.js"
 	},
 	"repository": {

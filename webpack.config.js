@@ -1,7 +1,8 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
-module.exports = {
+/** @type {import("webpack").Configuration} */
+const config = {
 	mode: "development",
 	devtool: "none",
 	context: process.cwd(),
@@ -47,3 +48,5 @@ module.exports = {
 		}),
 	],
 };
+
+module.exports = config;

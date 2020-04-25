@@ -29,6 +29,7 @@ function urlLoader(source, sourceMap, meta) {
 		source = `data:${ext};base64,${source.toString("base64")}`;
 		return `module.exports=${JSON.stringify(source)}`;
 	} else {
+		// 超过大小,调用fileLoader处理
 		return require("./file-loader").call(self, source, sourceMap, meta);
 	}
 }
